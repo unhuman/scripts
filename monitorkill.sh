@@ -81,6 +81,6 @@ echo "${processInfo}" | while IFS= read -r line ; do
          fi
       fi
    else
-      echo "Process ${processName} is healthy"
+      echo "Process ${processName} is healthy CPU ${cpu} <= ${maxCPU}"
    fi
 done
