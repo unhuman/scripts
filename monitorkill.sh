@@ -12,6 +12,9 @@ LOG_WARN=2
 LOG_ERROR=3
 log_level=LOG_WARN
 
+
+# params
+# 1: process name
 usage() { 
    echo "${1}"
    echo "This will monitor the processes by name and kill processes that are using more than the CPU allowed"
@@ -26,6 +29,9 @@ usage() {
    exit 1
 }
 
+# params
+# 1: log level
+# 2: log message
 log() {
    now=`date +"%y%m%d-%H%M%S"`
    if [[ ${1} -lt ${log_level} ]]; then
@@ -46,6 +52,17 @@ log() {
          ;;
    esac
    echo "${now} - ${level}: ${2}"
+}
+
+# params
+# 1: operation performed
+# 2: process name
+# 3: pid
+checkStatusCode() {
+   code=$?
+   if [[ ${code} -ne 0 ]]; then
+      log LOG_ERROR "Could not ${1} process ${2} (pid: ${3}) because ${code}"
+   fi
 }
 
 multi=false
@@ -108,6 +125,7 @@ echo "${processInfo}" | while IFS= read -r line ; do
       log LOG_WARN "Killing ${processName} because CPU ${cpu} > ${maxCPU}"
       pid=`echo ${line} | awk '{print $1}'`
       kill ${pid}
+      checkStatusCode "kill" processName pid
 
       if [[ $k9Delay -gt 0 ]]; then 
          kill9=false
@@ -123,6 +141,7 @@ echo "${processInfo}" | while IFS= read -r line ; do
          if [[ ${pid} != "" ]]; then
             log LOG_WARN "Kill -9 ${pid} ${processName} because it did not die"
             kill -9 ${pid}
+            checkStatusCode "kill -9" processName pid
          fi
       fi
    else
