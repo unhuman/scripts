@@ -1,0 +1,36 @@
+#!/bin/bash
+
+for option in "$@"
+do
+   if [ "$option" == "-replace" ]
+   then
+      REPLACE=1
+      shift
+   fi 
+done
+
+if [ $# -ne 2 ]
+then
+   echo "Invalid data received: $*"
+   echo "Usage: $0 [-replace] s/from/to/g filename"
+   exit -1
+fi
+
+if [ $REPLACE ]
+then 
+   sed "$1" "$2" > /tmp/holder
+   if [ $? -ne 0 ]
+   then
+      echo "ERROR: Couldn't process sed "$1" "$2" > /tmp/holder"
+       exit $?
+   fi 
+   mv /tmp/holder "$2"
+else 
+   sed "$1" "$2"
+   if [ $? -ne 0 ]
+   then
+      echo "ERROR: Couldn't process sed "$1" "$2""
+      exit $?
+   fi
+fi 
+
